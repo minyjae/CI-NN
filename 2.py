@@ -40,9 +40,12 @@ input_size = 2 # input_size มีขนาดเท่ากับ จำนว
 hidden_size = 15 # จำนวน node ใน hidden layer
 output_size = 2 # จำนวน output 
 
-learning_rate = 0.01 # learning rate
+learning_rate = 0.001 # learning rate
 momentum = 0.9 # momentum
 epochs = 100 # จำนวน epochs ที่จะ train
+
+converge_threshold = 0.01  # ใช้ตรวจว่า converge เมื่อไหร่
+converge_epochs_all = []   # เก็บจำนวน epoch ที่ converge ของแต่ละ fold
 
 # ===== 6. 10-Fold Cross Validation =====
 k = 10 # จำนวน fold ที่จะทำ
@@ -73,6 +76,8 @@ for fold in range(k):
     vb1 = np.zeros_like(b1) # เก็บ bias เติม ของ hidden 
     vW2 = np.zeros_like(W2) # เก็บ weight เดิม ของ hidden -> output
     vb2 = np.zeros_like(b2) # เก็บ bias เดิม ของ output
+    
+    converge_epoch = None  # บันทึกว่า converge ที่ epoch ไหน
 
     # === Training loop ===
     for epoch in range(epochs):
@@ -85,6 +90,9 @@ for fold in range(k):
         # ---- Loss ----
         error = y_pred - y_train # error = y ที่ได้ออกมาจากการ train ในแต่ละรอบ ลบกับ y_true จาก dataset
         loss = np.mean(error ** 2) # หา mean square error ในการ
+        
+        if converge_epoch is None and loss < converge_threshold:
+            converge_epoch = epoch + 1
 
         # ---- Gradient output ----
         gradient_output = error * sigmoid_derivative(y_pred)  # (y_pred - y) * y_pred * (1 - y_pred)
@@ -128,6 +136,13 @@ for fold in range(k):
     print(f"Final Training Loss: {loss:.6f}")
     print(f"Validation Loss: {val_loss:.6f}")
     
+    if converge_epoch is not None:
+        print(f"Converged at Epoch: {converge_epoch}")
+        converge_epochs_all.append(converge_epoch)
+    else:
+        print("Did not converge within the given epochs.")
+        converge_epochs_all.append(epochs)
+    
     # === Confusion Matrix ===
     pred_classes = np.argmax(y_val_pred, axis=1)  # ทำนาย class (0 หรือ 1)
     true_classes = np.argmax(y_val, axis=1)       # y จริง (0 หรือ 1)
@@ -145,5 +160,11 @@ for fold in range(k):
     # สามารถคำนวณ accuracy ได้จาก confusion matrix ด้วย
     accuracy = (TP + TN) / (TP + TN + FP + FN)
     print(f"Validation Accuracy: {accuracy:.4f}")
+    
+    print("\n=== Convergence Summary ===")
+    for i, epoch in enumerate(converge_epochs_all):
+        print(f"Fold {i + 1}: Converged at Epoch {epoch}")
+    avg_converge = sum(converge_epochs_all) / len(converge_epochs_all)
+    print(f"Average Convergence Epoch: {avg_converge:.2f}")
 
 
