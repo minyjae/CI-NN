@@ -1,10 +1,22 @@
-import numpy as np
+import random
+import math
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+# ==== Activation Function ====
+def sigmoid(x):  # ฟังก์ชัน sigmoid สำหรับทำ activation
+    return 1 / (1 + math.exp(-x))
 
-def sigmoid_derivative(y):
-    return y * (1 - y)  # y คือ output ของ sigmoid(x)
+def sigmoid_derivative(x):  # อนุพันธ์ของ sigmoid ใช้ใน backpropagation
+    sx = sigmoid(x)
+    return sx * (1 - sx)
+
+def dot(a, b):  # ฟังก์ชันคูณเวกเตอร์จุด (dot product)
+    return sum([x * y for x, y in zip(a, b)])
+
+def random_weight():  # สุ่มค่าน้ำหนักเริ่มต้นระหว่าง -1 ถึง 1
+    return random.uniform(-1, 1)
+
+def argmax(vec):                 # คืนค่าตำแหน่งของค่ามากที่สุดในเวกเตอร์
+    return max(range(len(vec)), key=lambda i: vec[i])
 
 # def gradientOut(e,y):
 #     g=e*y*(1-y)

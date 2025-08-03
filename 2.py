@@ -4,7 +4,7 @@ from NNfunction import *
 # ===== 1. Load & Shuffle Data =====
 combined_data = []
 
-with open("cross_pat.txt") as f: # อ่านไฟล์ cross_pat ที่เป็น dataset
+with open("cross.pat") as f: # อ่านไฟล์ cross_pat ที่เป็น dataset
     lines = f.readlines()
 
 i = 0
